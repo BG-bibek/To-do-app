@@ -11,16 +11,13 @@ var corsOptions = {
 };
 
 expressLoader.init = async(app)=>{
-
     app.use(cors(corsOptions))
-// parse requests of content-type - application/json
     app.use(express.json());
-// parse requests of content-type - application/x-www-form-urlencoded
     app.use(express.urlencoded({ extended: true }));
     app.use("/", indexRouter);
     app.use("/users", usersRouter);
     app.use("/task", taskRouter);
-    app.use("/task", authRouter);
+    app.use("/auth", authRouter);
 }
 
 export default expressLoader;
