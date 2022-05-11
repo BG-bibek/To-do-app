@@ -4,6 +4,7 @@ import taskRouter from "../routes/task";
 import authRouter from "../routes/auth.routes";
 import cors from "cors";
 import express from "express";
+import helmet from "helmet";
 let expressLoader = {}
 
 var corsOptions = {
@@ -11,6 +12,7 @@ var corsOptions = {
 };
 
 expressLoader.init = async(app)=>{
+    app.use(helmet());
     app.use(cors(corsOptions))
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));

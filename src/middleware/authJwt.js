@@ -38,7 +38,7 @@ function isAdmin(req, res, next){
   });
 };
 
-function isModerator  (req, res, next)  {
+function isModerator(req, res, next)  {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
       for (let i = 0; i < roles.length; i++) {
