@@ -1,91 +1,43 @@
-import db from "../../models";
-import config from "../../config/auth.config";
+import ServiceProvider from '../provider/service-provider';
+import controller from './auth/baseApiController';
 
-const User = db.user;
-const Role = db.role;
-const Op = db.Sequelize.Op;
-
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-
-function signup  (req, res)  {
-  // Save User to Database
-  User.create({
-    username: req.body.username,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
-  })
-    .then(user => {
-      if (req.body.roles) {
-        console.log(req.body.roles)
-        Role.findAll({
-          where: {
-            name: {
-              [Op.or]: req.body.roles
-            }
-          }
-        }).then(roles => {
-          user.setRoles(roles).then(() => {
-            // console.log(roles);
-            res.send({ message: "User was registered successfully!" });
-          });
-        });
-      } else {
-        // user role = 1
-        user.setRoles([1]).then(() => {
-          res.send({ message: "User was registered successfully!" });
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({ message: err.message });
-    });
-};
-
-function signin  (req, res)  {
-  User.findOne({
-    where: {
-      username: req.body.username
+class AuthController extends controller{
+    constructor(){
+        super();
+        this.service = ServiceProvider.AuthService;
+        this.signin = this.signin.bind(this)
     }
-  })
-    .then(user => {
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!"
-        });
-      }
-      var token = jwt.sign({ id: user.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
-      });
-      var authorities = [];
-      user.getRoles().then(roles => {
-        for (let i = 0; i < roles.length; i++) {
-          authorities.push("ROLE_" + roles[i].name.toUpperCase());
+    
+    async signin(req, res){
+        try {
+            const payload = {
+                username:req.body.username,
+                password:req.body.password
+            };
+            const data = await this.service.signin(payload);
+            return this.successResponse(res, data);
+        } catch(err) {     
+            console.log(err);
+            return this.errorResponse(res, err);
         }
-        res.status(200).send({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          roles: authorities,
-          accessToken: token
-        });
-      });
-    })
-    .catch(err => {
-      res.status(500).send({ message: err.message });
-    });
-};
+    }
 
-export default{
-  signup,
-  signin
-  
+    async signup (req, res)  {
+        try{
+            const payload = {
+                username : req.body.username,
+                email: req.body.email,
+                password: req.body.password,
+                roles: req.body.roles
+            }
+            console.log(payload)
+            const data = await this.service.signup(payload);
+            return this.successResponse(res,data);
+        } catch(err){
+            return this.errorResponse(res, err);
+        }
+  // Save User to Database
+};
 }
+export default new AuthController();
+

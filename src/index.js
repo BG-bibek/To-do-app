@@ -23,8 +23,6 @@ let startServer = async()=>{
 };
 db.sequelize.sync();// to connect to dattabase.
 
-
-
 // try {
 //    db.sequelize.authenticate();
 //   console.log('Connection has been established successfully.');
