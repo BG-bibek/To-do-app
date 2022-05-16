@@ -2,6 +2,7 @@ import indexRouter from "../routes/index";
 import usersRouter from "../routes/users";
 import taskRouter from "../routes/task";
 import authRouter from "../routes/auth.routes";
+import passwordRestrouter from "../routes/passwordReset"
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -20,6 +21,7 @@ expressLoader.init = async(app)=>{
     app.use("/users", usersRouter);
     app.use("/task", taskRouter);
     app.use("/auth", authRouter);
+    app.use("/pwd", passwordRestrouter);
 }
 
 export default expressLoader;

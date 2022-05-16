@@ -23,7 +23,7 @@ class AuthService extends BaseApiService{
             this.customError(404, "UNAUTHORIZED");
         }
         var token = jwt.sign({ id: userData.id }, config.secret, {
-        expiresIn: 60 // 24 hours
+        expiresIn: 86400 // 24 hours
         });
         var authorities = [];
         const roles =  userData.getRoles()
@@ -40,7 +40,9 @@ class AuthService extends BaseApiService{
     }
 
     async signup(payload){
-        const success = "User was registered successfully!"
+
+        
+
         const user = await User.create({ username: payload.username, email: payload.email, password: bcrypt.hashSync(payload.password, 8)})
         if(!payload.roles){
         await user.setRoles([1]);

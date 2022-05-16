@@ -1,6 +1,10 @@
 import express from 'express';
 import loaders from './loaders';
 import db from '../models';
+import dotenv from 'dotenv';
+
+// const Role = db.role;
+dotenv.config();
 
 let startServer = async()=>{
     const app = express();
@@ -22,7 +26,22 @@ let startServer = async()=>{
     });
 };
 db.sequelize.sync();// to connect to dattabase.
-
+// function initial() {
+//   Role.create({
+//     id: 1,
+//     name: "user"
+//   });
+ 
+//   Role.create({
+//     id: 2,
+//     name: "moderator"
+//   });
+ 
+//   Role.create({
+//     id: 3,
+//     name: "admin"
+//   });
+// }
 // try {
 //    db.sequelize.authenticate();
 //   console.log('Connection has been established successfully.');

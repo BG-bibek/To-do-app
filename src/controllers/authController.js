@@ -24,6 +24,11 @@ class AuthController extends controller{
 
     async signup (req, res)  {
         try{
+            const errors = this.validate(req);
+            if (!errors.isEmpty()) {
+                return this.errorResponse(res,errors);
+            }
+
             const payload = {
                 username : req.body.username,
                 email: req.body.email,

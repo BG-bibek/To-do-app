@@ -1,10 +1,15 @@
 import AuthService from '../services/api/authService';
+import PasswordReset from '../services/api/passwordResetService';
 class ServiceProvider {
   static instance = {}
   providers = [
     {
       name: 'AuthService',
       path: AuthService
+    },
+    {
+      name: 'PasswordReset',
+      path: PasswordReset
     },
   ]
 

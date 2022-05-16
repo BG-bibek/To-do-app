@@ -1,7 +1,9 @@
-
+import registerUserValidation from "../../validator/userValidator"
+import {validationResult} from "express-validator";
 module.exports = class Controller {
     constructor() {
         this.bindMethods();
+        this.validate = validationResult;
     }
 
     successResponse(res, data){

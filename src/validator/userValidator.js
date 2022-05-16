@@ -1,56 +1,30 @@
-const { checkSchema } = require('express-validator/check');
+import {checkSchema}  from "express-validator";
+import { user } from "../../models";
 
-const User = require('../../models/user.model');
-
-let addUserValidation = checkSchema({
+let registerUserValidation = checkSchema({
     'username': {
         isLength: {
-            errorMessage: 'Username is required',
-            options: { min: 1 }
-        },
-        custom: {
-            options: (value, { req }) => {
-                let isEdit = req.params && req.params.id ? true : false;
-                return new Promise( (resolve, reject) => {
-                    let whereCondition = {username:value};
-                    if (isEdit) {
-                        whereCondition = {username:value, '_id': {$ne: req.params.id}};
-                    }
-                    User.findOne(whereCondition).then(user => {
-                        if(user === null) {
-                            resolve(true);
-                        } else {
-                            reject('Username already exists');
-                        }
-                    }).catch(() => {
-                        resolve(true);
-                    });
-                });
-            }
+            errorMessage: ' Name is required',
+            options: { min : 1}
         }
     },
-   
     'email': {
         isLength: {
             errorMessage: 'Email is required',
-            options: { min: 1 }
+            options: { min: 1}
         },
         isEmail: {
-            errorMessage: 'Not a valid email'
+            errorMessage: 'This email is not a valid email'
         },
         custom: {
-            options: (value, { req }) => {
-                let isEdit = req.params && req.params.id ? true : false;
-                return new Promise( (resolve, reject) => {
-                    let whereCondition = {email:value};
-                    if (isEdit) {
-                        whereCondition = {username:value, '_id': {$ne: req.params.id}};
-                    }
-                    User.findOne(whereCondition).then(user => {
+            options: (value) => {
+                    return new Promise ((resolve, reject) => {
+                    let whereCondition = {email: value};
+                    user.findOne({where: whereCondition}).then(user => {
                         if(user === null) {
-                            resolve(true);
+                            resolve (true);
                         } else {
-                            reject('Email already exists');
+                            reject('This email already exists');
                         }
                     }).catch(() => {
                         resolve(true);
@@ -61,56 +35,19 @@ let addUserValidation = checkSchema({
     },
     'password': {
         custom: {
-            options: (value, { req }) => {
-                if (req.query._method == 'PUT' || req.body.password_method=="is_activation_link") {
-                    return true;
-                }
-                if (value === '' || value == undefined) {
+            options: (value) => {
+                if(value === '' || value == undefined){
                     throw new Error('Password is required');
                 } else {
-                    if (value.length >= 6 && value.length <= 20) {
+                    if(value.length >= 8 && value.length <=30) {
                         return true;
-                    }  else {
-                        throw new Error('Password must be between 6 and 20 characters', 'password', 412);
+                    } else {
+                        throw new Error('Password must be between 8 and 25 characters.');
                     }
                 }
             }
         }
     }
-
 });
 
-let changeUserPasswordValidation = checkSchema({
-    'password': {
-        isLength: {
-            errorMessage: 'Password is required',
-            options: { min: 1 }
-        },
-        custom: {
-            options: (value) => {
-                if (value.length >= 6 && value.length <= 20) {
-                    return true;
-                }  else {
-                    throw new Error('Password must be between 6 and 20 characters', 'password', 412);
-                }
-            }
-        }
-    },
-    'confirm_password': {
-        isLength: {
-            errorMessage: 'Confirm password is required',
-            options: { min: 1 }
-        },
-        custom: {
-            options: (value, { req }) => {
-                if(value === req.body.password) {
-                    return true;
-                } else{
-                    throw new Error('Password do not match');
-                }
-            }
-        }
-    }
-});
-
-module.exports = {addUserValidation, changeUserPasswordValidation};
+export default {registerUserValidation};

@@ -8,7 +8,17 @@ module.exports = (sequelize, Sequelize) => {
     },
     password: {
       type: Sequelize.STRING
+    }, 
+    token : {
+      type: Sequelize.STRING,
+      allowNull :true
+    },
+    tokenExpires : {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+         allowNull :true
     }
-  });
+    
+  },{ timestamps : true });
   return User;
 };
