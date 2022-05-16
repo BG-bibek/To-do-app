@@ -1,10 +1,10 @@
 import db from "../../../models";
-import sendEmail from "../../services/email-service/emailService";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import BaseApiService from "./baseApiService";
 const User = db.user;
 
-class PasswordReset {
+class PasswordReset extends BaseApiService {
     async forgotPwd(payload) {
         //todo:validation.
         const user = await User.findOne({ where:{ email: payload.email }});
@@ -16,7 +16,7 @@ class PasswordReset {
         });
         await user.save();  
         const link = `http://localhost:3000/pwd/${user.id}/${token}`;
-        await sendEmail(user.email, "Password reset", link);
+        await this.sendEmail(user.email, "Password reset", link);
         return "password reset link sent to your email account"
     }
 

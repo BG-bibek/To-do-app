@@ -24,6 +24,7 @@
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.5",
+    "otp-generator": "^4.0.0",
     "rimraf": "^3.0.2",
     "sequelize": "^6.19.0"
   },

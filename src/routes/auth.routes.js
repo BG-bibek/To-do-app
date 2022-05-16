@@ -8,5 +8,6 @@ const { checkDuplicateUsernameOrEmail,checkRolesExisted} = middleware
 
   router.post("/signup",[checkDuplicateUsernameOrEmail,checkRolesExisted],controller.signup);
   router.post("/signin", controller.signin);
+  router.post('/otp/:username', controller.otp );
 
 export default router;

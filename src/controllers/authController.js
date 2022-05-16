@@ -7,6 +7,22 @@ class AuthController extends controller{
         this.service = ServiceProvider.AuthService;
         this.signin = this.signin.bind(this)
     }
+
+    async otp(req,res){
+        try{
+             const payload = {
+                username:req.params.username,
+                otp:req.body.otp
+            };
+            console.log(payload)
+            const data = await this.service.otp(payload);
+            return this.successResponse(res, data);
+
+        }catch(err){
+            console.log(err);
+            return this.errorResponse(res,err);
+        }
+    }
     
     async signin(req, res){
         try {
