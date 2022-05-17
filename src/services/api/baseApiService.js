@@ -31,6 +31,12 @@ class BaseApiService {
     } catch (error) {
         console.log(error, "email not sent");
     }
+    }
+
+    async findOne(query){
+        let data =  await this.model.findOne({
+            
+        })
 
     }
 }

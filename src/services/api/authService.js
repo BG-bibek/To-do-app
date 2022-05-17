@@ -5,13 +5,45 @@ import {Op} from 'sequelize';
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import otpGenerator from 'otp-generator';
-import { text } from "express";
 const Role = db.role;
 const User = db.user;
+import signer from 'signed-url';
+const sign = signer(config); 
 // import sendEmail from "../email-service/emailService";
 
-class AuthService extends BaseApiService{
-    
+class AuthService extends BaseApiService{ 
+    constructor(){
+        super()
+        this.tokenList = {}
+    }
+
+    async signup(payload){
+        const options = {
+            method: 'GET',
+            ttl: 3600 // expiry time in seconds (optional)
+        };
+        const signedUrl = sign.sign(`http://localhost:3000/auth/signup?username=${payload.username}&email=${payload.email}&password=${payload.password}&roles=${payload.roles}`, options);
+        await this.sendEmail(payload.email, "Email verification", signedUrl);
+        console.log(signedUrl);
+        return "Please verify your mail. Link has been sent to your Gmail.";
+    }  
+
+    async emailVerification(payload){
+        const options = {
+            method: 'GET'
+        };
+        const valid = sign.verify(`http://localhost:3000/auth/signup?username=${payload.username}&email=${payload.email}&password=${payload.password}&roles=${payload.roles}&hash=${payload.hash}`, options);
+        if(!valid) return "invalid link or expired";
+        const user = await User.create({ username: payload.username, email: payload.email, password: bcrypt.hashSync(payload.password, 8)})  
+        if(!payload.roles){
+        await user.setRoles([1]);
+        return "User was registered successfully!"
+        }
+        const roles = await Role.findAll({where: {name: {[Op.or]: payload.roles.split(',') }}})     
+        await user.setRoles(roles);
+        return "User was registered successfully!"
+    }
+
     async signin(payload){
         const userData = await User.findOne({
             where:{
@@ -22,13 +54,12 @@ class AuthService extends BaseApiService{
             }
         });
         if (!userData || ! bcrypt.compareSync(payload.password, userData.password)){            
-            this.customError(404, "UNAUTHORIZED");
+            this.customError(404, "Invalid User name or Passwords");
         }
         const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
-        console.log(otp)
          userData.set({
                 token: otp,
-                tokenExpires: Date.now() + 60000
+                tokenExpires: Date.now() + 60000 //1 min
         });
         await userData.save();  
         const subject =  "OTP Verification";
@@ -38,20 +69,8 @@ class AuthService extends BaseApiService{
         return 'OPT link sent to your email account';       
     }
 
-    async signup(payload){
-        const user = await User.create({ username: payload.username, email: payload.email, password: bcrypt.hashSync(payload.password, 8)})
-        if(!payload.roles){
-        await user.setRoles([1]);
-        return "User was registered successfully!"
-        }
-        const roles = await Role.findAll({where: {name: {[Op.or]: payload.roles }}})
-        await user.setRoles(roles)
-        return "User was registered successfully!"
-    }  
-
-     async otp(payload) {
+    async otp(payload) {
         //todo:validation.
-        const otp = payload.otp;
         const userData = await User.findOne({
             where:{
                 token : payload.otp,
@@ -61,11 +80,17 @@ class AuthService extends BaseApiService{
                 ]
         }
         });
-        if (!userData) return "invalid link or expired 1"
-        if(!(userData.tokenExpires > Date.now())) return "Invalid link or expired 3";
-        var token = jwt.sign({ id: userData.id }, config.secret, {
-        expiresIn: 86400 // 24 hours
+        if (!userData || !(userData.tokenExpires > Date.now())) return "invalid link or expired Token"
+        var token = jwt.sign({ id: userData.id }, config.secret, {expiresIn: 5*60});//5 min 
+        var refreshToken = jwt.sign({id: userData.id}, config.refreshTokenSecret, {
+            expiresIn: 604800 //1 week
         });
+        this.tokenList[refreshToken] = {
+            "refreshToken": refreshToken,
+            "id":userData.id,
+            "expiresIn": Date.now() +  300000 // 5min 
+        }
+
         var authorities = [];
         const roles =  userData.getRoles()
         for (let i = 0; i < roles.length; i++) {
@@ -81,9 +106,42 @@ class AuthService extends BaseApiService{
           username: userData.username,
           email: userData.email,
           roles: authorities,
-          accessToken: token
+          accessToken: token,
+          refreshToken: refreshToken
         };  
     }
+ 
+
+   
+
+    async token(payload){
+        if(!payload.refreshToken || !payload.username || !(payload.refreshToken in this.tokenList) ) return "Invalid request1";
+        if(this.tokenList[payload.refreshToken].expiresIn > Date.now()) return 'Your previous token has not expired'
+        const userData = await User.findOne({
+               where:{ 
+                   [Op.or]: [
+                    {username: payload.username},
+                    {email: payload.username}
+                ]
+                 }            
+        });
+        var token = jwt.sign({ id: userData.id }, config.secret, {
+            expiresIn: 500// 1h 
+        });  
+
+         this.tokenList[refreshToken] = {
+            "refreshToken": refreshToken,
+            "id":userData.id,
+            "expiresIn": Date.now() +  300000 // 5min 
+        }
+        
+        return{
+          username: userData.username,
+          accessToken: token,
+        }; 
+    }
+
+     
 }
 
 export default AuthService;

@@ -12,7 +12,7 @@ class PasswordReset extends BaseApiService {
         var token = crypto.randomBytes(32).toString("hex");
         user.set({
                 token: token,
-                tokenExpires: Date.now() + 3600000
+                tokenExpires: Date.now() + 3600000 //1h
         });
         await user.save();  
         const link = `http://localhost:3000/pwd/${user.id}/${token}`;
@@ -22,15 +22,14 @@ class PasswordReset extends BaseApiService {
 
     async resetPassword(payload) {  
         //todo: validation
-        const users = await User.findAll({
+        const user = await User.findOne({
         where: {
          id: payload.userId,
          token: payload.token
              }
         });
-        const user = users[0]
-        if (!user) return "invalid link or expired 1"
-        if(!(user.tokenExpires > Date.now())) return "Invalid link or expired 3";
+        // console.log(usesrs)
+        if (!user || !(user.tokenExpires > Date.now())) return "invalid link or expired";
         user.password = bcrypt.hashSync(payload.password, 8) ;
         await user.set({
                 token: null,

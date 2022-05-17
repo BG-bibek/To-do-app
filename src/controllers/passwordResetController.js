@@ -14,7 +14,6 @@ class PwdController extends controller{
             };
             console.log(this.service)
             const data = await this.service.forgotPwd(payload);
-
             return this.successResponse(res, data);
         } catch(err) {     
             console.log(err);
@@ -28,7 +27,6 @@ class PwdController extends controller{
             // if (!errors.isEmpty()) {
             //     return this.errorResponse(res,errors);
             // }
-
             const payload = {
                 userId : req.params.userId,
                 token: req.params.token,

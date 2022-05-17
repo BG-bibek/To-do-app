@@ -17,12 +17,12 @@ let startServer = async()=>{
     );
     next();
   });
-    app.listen(3000, err =>{
+    app.listen(process.env.PORT, err =>{
         if(err){
             console.log(err);
             return;
         }
-        console.log(`App runnning at port 3000`);
+        console.log(`App runnning at port ${process.env.PORT}`);
     });
 };
 db.sequelize.sync();// to connect to dattabase.
