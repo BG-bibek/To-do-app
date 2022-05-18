@@ -2,6 +2,9 @@ import CustomError from "../../errors/customError";
 import nodemailer from "nodemailer"; 
 
 class BaseApiService {
+    constructor(model){
+        this.model = model
+    }
 
     customError(code, msg){
         throw new CustomError({statusCode: code, msg: msg});
@@ -33,12 +36,6 @@ class BaseApiService {
     }
     }
 
-    async findOne(query){
-        let data =  await this.model.findOne({
-            
-        })
-
-    }
 }
 
 export default BaseApiService;

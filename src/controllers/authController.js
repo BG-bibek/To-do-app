@@ -90,6 +90,19 @@ class AuthController extends controller{
         }
     }
 
+    async logout(req,res) {
+        try {
+            const payload = {
+                token : req.body.token
+            }
+            const data = await this.service.logout(payload);
+            return this.successResponse(res,data);
+        }catch(err){
+            console.log(err);
+            return this.errorResponse(res, err);  
+        }
+    }
+
     
 }
 export default new AuthController();

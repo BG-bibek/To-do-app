@@ -9,11 +9,11 @@ const Role = db.role;
 const User = db.user;
 import signer from 'signed-url';
 const sign = signer(config); 
-// import sendEmail from "../email-service/emailService";
 
 class AuthService extends BaseApiService{ 
     constructor(){
-        super()
+        super();
+        // this.findOneUser = this.findOneUser.bind(this);
         this.tokenList = {}
     }
 
@@ -24,7 +24,6 @@ class AuthService extends BaseApiService{
         };
         const signedUrl = sign.sign(`http://localhost:3000/auth/signup?username=${payload.username}&email=${payload.email}&password=${payload.password}&roles=${payload.roles}`, options);
         await this.sendEmail(payload.email, "Email verification", signedUrl);
-        console.log(signedUrl);
         return "Please verify your mail. Link has been sent to your Gmail.";
     }  
 
@@ -45,14 +44,7 @@ class AuthService extends BaseApiService{
     }
 
     async signin(payload){
-        const userData = await User.findOne({
-            where:{
-                [Op.or]: [
-                    {username: payload.username},
-                    {email: payload.username}
-                ]
-            }
-        });
+         const userData = await this.findOneUser(payload.username);
         if (!userData || ! bcrypt.compareSync(payload.password, userData.password)){            
             this.customError(404, "Invalid User name or Passwords");
         }
@@ -71,15 +63,8 @@ class AuthService extends BaseApiService{
 
     async otp(payload) {
         //todo:validation.
-        const userData = await User.findOne({
-            where:{
-                token : payload.otp,
-                [Op.or]: [  
-                    {username: payload.username},
-                    {email: payload.username}
-                ]
-        }
-        });
+
+         const userData = await this.findOneUser(payload.username);
         if (!userData || !(userData.tokenExpires > Date.now())) return "invalid link or expired Token"
         var token = jwt.sign({ id: userData.id }, config.secret, {expiresIn: 5*60});//5 min 
         var refreshToken = jwt.sign({id: userData.id}, config.refreshTokenSecret, {
@@ -90,7 +75,6 @@ class AuthService extends BaseApiService{
             "id":userData.id,
             "expiresIn": Date.now() +  300000 // 5min 
         }
-
         var authorities = [];
         const roles =  userData.getRoles()
         for (let i = 0; i < roles.length; i++) {
@@ -109,22 +93,13 @@ class AuthService extends BaseApiService{
           accessToken: token,
           refreshToken: refreshToken
         };  
-    }
- 
-
-   
+    } 
 
     async token(payload){
-        if(!payload.refreshToken || !payload.username || !(payload.refreshToken in this.tokenList) ) return "Invalid request1";
+        if(!payload.refreshToken || !payload.username || !(payload.refreshToken in this.tokenList) ) return "Invalid request";
         if(this.tokenList[payload.refreshToken].expiresIn > Date.now()) return 'Your previous token has not expired'
-        const userData = await User.findOne({
-               where:{ 
-                   [Op.or]: [
-                    {username: payload.username},
-                    {email: payload.username}
-                ]
-                 }            
-        });
+
+        const userData = await this.findOneUser(payload.username);
         var token = jwt.sign({ id: userData.id }, config.secret, {
             expiresIn: 500// 1h 
         });  
@@ -141,7 +116,24 @@ class AuthService extends BaseApiService{
         }; 
     }
 
-     
+    async logout(payload) {
+        if(!payload.token || !(payload.token in this.tokenList)) return "Invalid request";
+        delete this.tokenList[payload.token];
+        return "Logout sucessful!!";
+        
+    }   
+
+    async findOneUser(userName){
+           const userData = await User.findOne({
+               where:{ 
+                   [Op.or]: [
+                    {username: userName},
+                    {email: userName}
+                ]
+                 }            
+        }); 
+        return userData;
+    }
 }
 
 export default AuthService;

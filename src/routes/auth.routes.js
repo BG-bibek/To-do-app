@@ -11,5 +11,6 @@ const { checkDuplicateUsernameOrEmail,checkRolesExisted} = middleware
   router.post("/signin", controller.signin);
   router.post('/otp/:username', controller.otp);
   router.post('/token', controller.token);
+  router.delete('/logout', controller.logout);
 
 export default router;
