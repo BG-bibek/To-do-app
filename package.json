@@ -26,6 +26,8 @@
     "nodemailer": "^6.7.5",
     "nodemon": "^2.0.16",
     "otp-generator": "^4.0.0",
+    "passport": "^0.5.3",
+    "passport-jwt": "^4.0.0",
     "rimraf": "^3.0.2",
     "sequelize": "^6.19.0",
     "signed-url": "^1.0.3"

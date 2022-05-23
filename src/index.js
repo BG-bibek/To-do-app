@@ -1,11 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+console.log("here i am")
 import express from 'express';
 import loaders from './loaders';
 import db from '../models';
-import dotenv from 'dotenv';
 
 // const Role = db.role;
-dotenv.config();
 
+console.log(process.env);
 let startServer = async()=>{
     const app = express();
     await loaders.init(app);
@@ -20,7 +22,6 @@ let startServer = async()=>{
     app.listen(process.env.PORT, err =>{
         if(err){
             console.log(err);
-            return;
         }
         console.log(`App runnning at port ${process.env.PORT}`);
     });

@@ -66,8 +66,8 @@ class AuthService extends BaseApiService{
 
          const userData = await this.findOneUser(payload.username);
         if (!userData || !(userData.tokenExpires > Date.now())) return "invalid link or expired Token"
-        var token = jwt.sign({ id: userData.id }, config.secret, {expiresIn: 5*60});//5 min 
-        var refreshToken = jwt.sign({id: userData.id}, config.refreshTokenSecret, {
+        var token = jwt.sign({ id: userData.id }, process.env.JWT_SECRET, {expiresIn: 5*60});//5 min 
+        var refreshToken = jwt.sign({id: userData.id}, process.env.refreshTokenSecret, {
             expiresIn: 604800 //1 week
         });
         this.tokenList[refreshToken] = {
@@ -100,7 +100,7 @@ class AuthService extends BaseApiService{
         if(this.tokenList[payload.refreshToken].expiresIn > Date.now()) return 'Your previous token has not expired'
 
         const userData = await this.findOneUser(payload.username);
-        var token = jwt.sign({ id: userData.id }, config.secret, {
+        var token = jwt.sign({ id: userData.id }, process.env.JWT_SECRET, {
             expiresIn: 500// 1h 
         });  
 
@@ -119,8 +119,7 @@ class AuthService extends BaseApiService{
     async logout(payload) {
         if(!payload.token || !(payload.token in this.tokenList)) return "Invalid request";
         delete this.tokenList[payload.token];
-        return "Logout sucessful!!";
-        
+        return "Logout sucessful!!";       
     }   
 
     async findOneUser(userName){
