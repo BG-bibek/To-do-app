@@ -1,0 +1,53 @@
+[33mcommit 0d734dc6eb0848accde053d5ccb88380b8193bba[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Mon May 23 10:13:15 2022 +0545
+
+    passport.js implemented for authentication.
+
+[33mcommit c91735c1fc7edaf9ea88729dd4b1c5c0888dd371[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Wed May 18 13:11:45 2022 +0545
+
+    logout added
+
+[33mcommit 1a898106a28ec87f1cf390f2c88f59cf2464b272[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Tue May 17 17:36:13 2022 +0545
+
+    refresh jwt added
+
+[33mcommit 98a7a5a24f2a99a9abd0e4b0ac98b4a04c36dfae[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Mon May 16 16:16:06 2022 +0545
+
+    two factor authentication added
+
+[33mcommit 8e318557255bce661f9db1913475bb45913dfec8[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Mon May 16 13:21:01 2022 +0545
+
+    code refactoring
+
+[33mcommit cc70d156de2cce306a83b10e222b486280b08c44[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Thu May 12 10:33:45 2022 +0545
+
+    signin and signup completed!
+
+[33mcommit e6702ac064d68b1bb8c75b7554f0eea7a67eac49[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Wed May 11 16:07:29 2022 +0545
+
+    helmet added
+
+[33mcommit d9b2c35875e7e15cb89cee75bcf03bd1bd923438[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Wed May 11 12:52:12 2022 +0545
+
+    auth done
+
+[33mcommit d14c4c06e34b1892cb1f49cc2e394b1e91975e3a[m
+Author: BG-bibek <bibekgautam810@gmail.com>
+Date:   Tue May 10 13:50:25 2022 +0545
+
+    v1
